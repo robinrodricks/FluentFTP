@@ -64,7 +64,7 @@ namespace FluentFTP {
 
 				// 550 SIZE not allowed in ASCII mode
 				// Checking for the text "ascii" works in all languages seen up to now
-				if (!Status.FileSizeASCIINotSupported && reply.Code == "550" && reply.Message.ToLower().Contains("ascii")) {
+				if (!Status.FileSizeASCIINotSupported && reply.Code == "550" && reply.Message.ToLowerInvariant().Contains("ascii")) {
 					// set the flag so mode switching is always done
 					Status.FileSizeASCIINotSupported = true;
 

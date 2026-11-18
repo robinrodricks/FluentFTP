@@ -14,7 +14,7 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		public static void Detect(List<FtpCapability> capabilities, ref FtpHashAlgorithm hashAlgorithms, string[] features) {
 			foreach (var feat in features) {
-				var featName = feat.Trim().ToUpper();
+				var featName = feat.Trim().ToUpperInvariant();
 
 				// Handle possible multiline FEAT reply format
 				if (featName.StartsWith("211-")) {
@@ -124,7 +124,7 @@ namespace FluentFTP.Client.Modules {
 
 					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
 						foreach (var type in m.Groups["types"].Value.Split(';')) {
-							switch (type.ToUpper().Trim()) {
+							switch (type.ToUpperInvariant().Trim()) {
 								case "SHA-1":
 								case "SHA-1*":
 									hashAlgorithms |= FtpHashAlgorithm.SHA1;

@@ -265,7 +265,7 @@ namespace FluentFTP.Helpers {
 				return false;
 			}
 
-			reply = reply.ToLower();
+			reply = reply.ToLowerInvariant();
 			foreach (var msg in strings) {
 				if (reply.Contains(msg)) {
 					return true;
