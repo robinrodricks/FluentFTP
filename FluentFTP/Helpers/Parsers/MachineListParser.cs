@@ -32,7 +32,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return null;
 			}
 
-			switch (m.Groups["type"].Value.ToLower()) {
+			switch (m.Groups["type"].Value.ToLowerInvariant()) {
 
 				// Parent and self-directories are parsed but not always returned
 				case "pdir":
