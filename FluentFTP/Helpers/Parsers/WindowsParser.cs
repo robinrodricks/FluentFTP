@@ -41,7 +41,7 @@ namespace FluentFTP.Helpers.Parsers {
 					timeColon = true;
 				}
 
-				if (values[2].ToUpper() == DirectoryMarker || char.IsDigit(values[2][0])) {
+				if (values[2].ToUpperInvariant() == DirectoryMarker || char.IsDigit(values[2][0])) {
 					dirOrFile = true;
 				}
 			}
@@ -110,7 +110,7 @@ namespace FluentFTP.Helpers.Parsers {
 		private static void ParseTypeAndFileSize(BaseFtpClient client, string type, out bool isDir, out long size) {
 			isDir = false;
 			size = 0L;
-			if (type.ToUpper().Equals(DirectoryMarker.ToUpper())) {
+			if (type.ToUpperInvariant().Equals(DirectoryMarker.ToUpperInvariant())) {
 				isDir = true;
 			}
 			else {

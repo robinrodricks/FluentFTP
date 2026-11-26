@@ -176,7 +176,7 @@ namespace FluentFTP {
 
 					if (existingServerFile.Type == FtpObjectType.File) {
 
-						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
+						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLowerInvariant())) {
 
 							// only delete the remote file if its permitted by the configuration
 							if (DirectoryModule.CanDeleteRemoteFile(this, rules, existingServerFile)) {

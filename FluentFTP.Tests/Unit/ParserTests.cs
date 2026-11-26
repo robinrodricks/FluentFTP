@@ -59,6 +59,34 @@ namespace FluentFTP.Tests.Unit {
 
 
 		[Fact]
+		public void MachineTypeIsCultureInvariant() {
+
+			var previousCulture = System.Globalization.CultureInfo.CurrentCulture;
+			System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("tr-TR");
+			try {
+				var client = new FtpClient();
+				client.SetFeatures(new List<FtpCapability> { FtpCapability.MLST });
+				var parser = new FtpListParser(client);
+				parser.Init(FtpOperatingSystem.Unix, FtpParser.Machine);
+
+				var dir = parser.ParseSingleLine("/", "Type=DIR;Size=0; Folder", new List<FtpCapability>(), true);
+				Assert.NotNull(dir);
+				Assert.Equal(FtpObjectType.Directory, dir!.Type);
+
+				var file = parser.ParseSingleLine("/", "Type=FILE;Size=14; File", new List<FtpCapability>(), true);
+				Assert.NotNull(file);
+				Assert.Equal(FtpObjectType.File, file!.Type);
+
+				var link = parser.ParseSingleLine("/", "type=OS.UNIX=symlink; Link", new List<FtpCapability>(), true);
+				Assert.NotNull(link);
+				Assert.Equal(FtpObjectType.Link, link!.Type);
+			}
+			finally {
+				System.Globalization.CultureInfo.CurrentCulture = previousCulture;
+			}
+		}
+
+		[Fact]
 		public void Machine() {
 
 			var client = new FtpClient();

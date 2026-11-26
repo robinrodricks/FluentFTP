@@ -88,7 +88,7 @@ namespace FluentFTP.Client.Modules {
 			if (FileRuleModule.FilePassesRules(client, result, rules, false, remoteFile)) {
 
 				// record that this file/folder should exist
-				shouldExist.Add(localFile.ToLower(), true);
+				shouldExist.Add(localFile.ToLowerInvariant(), true);
 
 				// only files are processed
 				toDownload.Add(result);

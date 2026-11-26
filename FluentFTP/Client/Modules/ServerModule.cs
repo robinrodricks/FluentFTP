@@ -68,7 +68,7 @@ namespace FluentFTP.Client.Modules {
 			var serverOS = client.ServerOS;
 
 			// detect OS type
-			var system = client.SystemType.ToUpper();
+			var system = client.SystemType.ToUpperInvariant();
 
 			if (system.StartsWith("WINDOWS")) {
 				// Windows OS
